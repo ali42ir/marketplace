@@ -1,18 +1,33 @@
 name: Build & Publish to deploy (Hostinger)
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
+# اجازهٔ نوشتن روی ریپو برای ساختن/آپدیت برنچ deploy
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
-      - run: npm run build
+
+      # اگر package-lock.json نداشته باشیم، npm ci خطا می‌دهد.
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
       - name: Publish dist to deploy branch
         uses: s0/git-publish-subdir-action@develop
         env:
